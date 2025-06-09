@@ -1,15 +1,19 @@
 import json
 
+user_file = "users.json"
+order_file = "orders.json"
+product_file = "products.json"
 
-def data_read():
+
+def data_read(file_name):
     try:
-        with open("users.json", "r") as file:
-            users = json.load(file)
+        with open(file_name, "r") as file:
+            datas = json.load(file)
     except FileNotFoundError:
-        with open("users.json", "w") as file:
-            users = [{"username": "admin", "password": "admin", "role": "admin"}]
-            json.dump(users, file)
-    return users
+        with open(file_name, "w") as file:
+            datas = []
+            json.dump(datas, file)
+    return datas
 
 
 def data_write(users):
@@ -18,21 +22,26 @@ def data_write(users):
 
 
 def register():
-    users = data_read()
+    users = data_read(user_file)
 
     login = input("Login: ")
     parol = input("Parol: ")
+    id_list = []  # id
     for user in users:
         if user['username'] == login:
             print("Bu login bazada bor")
             return
-    users.append({"username": login, "password": parol, "role": "user"})
+        id_list.append(user['id'])  # id
+
+    id = max(id_list, default=0) + 1  # id
+
+    users.append({"id": id, "username": login, "password": parol, "role": "user"})
     print("Ro'yxatdan o'tdingiz")
     data_write(users)
 
 
 def login():
-    users = data_read()
+    users = data_read(user_file)
 
     login = input("Login: ")
     parol = input("Parol: ")
@@ -44,16 +53,54 @@ def login():
     print("Bazada bunday login yo'q")
     return None, None
 
+
+def accepted_orders(status):
+    orders = data_read(order_file)
+    if not orders:
+        print("Buyurtmalar yo'q")
+
+    for order in orders:
+        if order['status'] == status or status is None:
+            print(f"id: {order['order_id']}; {order['username']} {order['product_id']} {order['product_name']}")
+
+
 def admin_menu():
     while True:
-        menu = input(""" Admin menusi
+        try:
+            menu = int(input("""Admin menyusi
         1. New orders (status: new)
         2. Accepted orders (status: accepted)
         3. Canceled orders (status: canceled)
         4. Add new product
         5. Delete product
-        6. Logout\n""")
-    print()
+        6. Logout\n"""))
+        except:
+            print("Xato. 1-6 oraliqda son kiriting:")
+            continue
+        if menu == 1:
+            accepted_orders()
+        elif menu == 2:
+            accepted_orders('accepted')
+        elif menu == 3:
+            accepted_orders('canceled')
+        elif menu == 4:
+            add_product()
+
+
+def user_menu(username):
+    print(f"user {username}")
+
+def add_product():
+    products=data_read(product_file)
+    name = input("Name: ")
+    category = input("Category: ")
+    price = float(input("Price: "))
+    stock = int(input("Stock: "))
+
+    id = max(id_list, default=0) + 1  # id
+    products.append({"name":name, "category": category, "price": price, "stock": stock})
+
+
 def main():
     while True:
         try:
@@ -69,6 +116,10 @@ def main():
             register()
         elif menu == 2:
             username, role = login()
+            if role == "admin":
+                admin_menu()
+            elif role == "user":
+                user_menu(username)
         elif menu == 3:
             break
         else:
