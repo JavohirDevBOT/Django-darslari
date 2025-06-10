@@ -1,0 +1,17 @@
+[
+    {
+        "muallifi": "Noma'lum",
+        "kitob_nomi": "javohir ziyadullayev",
+        "narxi": 10
+    },
+    {
+        "muallifi": "ABC",
+        "kitob_nomi": "Python",
+        "narxi": 10
+    },
+    {
+        "muallifi": "ABC",
+        "kitob_nomi": "Java",
+        "narxi": 10
+    }
+]
